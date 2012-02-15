@@ -1,0 +1,7 @@
+SimpleBayes
+
+A simple Naive Bayesian Classifier for identifying spam
+email.  Just did it to learn some ML, and I'm not quite
+sure if it follows most specs, though it seems to work
+for the cases I've tried.
+
