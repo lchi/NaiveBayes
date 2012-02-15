@@ -1,6 +1,8 @@
+import sys
 import re
 from sets import Set
 import mailbox
+
 #from mailbox import Maildir
 #from mailbox import MaildirMessage
 
@@ -62,8 +64,9 @@ class Bayes(object):
             not_p_combined *= (1-score)
         #print p_combined, not_p_combined
         p_spam = p_combined / float(p_combined + not_p_combined)
-        print p_spam
-        return self.threshold < p_spam
+        #print p_spam
+        #return (self.threshold < p_spam, p_spam)
+        return p_spam
 
     def _p_token_given(self, token, given):
         tk = self.tokens[token]
@@ -106,42 +109,32 @@ def clean_text(text):
     return Set(regex.sub('', text).lower().split())
 
 if __name__ == '__main__':
+    if len(sys.argv) < 4:
+        print 'Usage: python bayes.py <ham dir> <spam dir> <targets...>'
+        sys.exit(1)
     b = Bayes()
     
-    spam = read_file('spam1')
-    spam1 = read_file('spam2')
-    ham = read_file('ham1')
-    
-
-    b.train_on_text(spam, True)
-    b.train_on_text(ham, False)                    
-    b.train_on_text(spam1, True)
-
-    test = read_file('spam2')
-    
-    print b.score_text(test)        
-    print b.score_text(read_file('test1'))
-    #print b.spam_count, b.ham_count
-    #print b.tokens['spam'].spam_appear, b.tokens['spam'].ham_appear
-
-    mbox = mailbox.Maildir('/home/lucas/Downloads/mail/', None)
+    mbox = mailbox.Maildir(sys.argv[1], None)
     for key in mbox.keys():
         msg = mbox.get_message(key)
         payload = msg.as_string()
         b.train_on_text(clean_text(payload), False)
         
-    spambox = mailbox.Maildir('/home/lucas/Downloads/spam/', None)
+    spambox = mailbox.Maildir(sys.argv[2], None)
     for key in spambox.keys():
         msg = spambox.get_message(key)
         payload = msg.as_string()
         b.train_on_text(clean_text(payload), True)
 
-    test = read_file('realspam1')
-    print b.score_text(test)
-
-    print b.score_text(read_file('notrealspam1'))
+    for i in range(3, len(sys.argv)):
+        msg_file = sys.argv[i]
+        msg_text = read_file(msg_file)
+        print msg_file, 'is spam w/ probability', b.score_text(msg_text)
+        
     #print b.score_text(read_file('realnonspam1'))
 
+    #old debugging stuff
+'''
     print '++++++++++++++++++++++++++++++++++++++++++'
     c = 0
     for key, val in b.tokens.items():
@@ -151,3 +144,4 @@ if __name__ == '__main__':
 
     print 'count=',c
     print b.spam_count, b.ham_count
+'''

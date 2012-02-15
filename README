@@ -5,3 +5,38 @@ email.  Just did it to learn some ML, and I'm not quite
 sure if it follows most specs, though it seems to work
 for the cases I've tried.
 
+Usage: python bayes.py <hamdir> <spamdir> <targets...>
+
+hamdir is a Maildir (see: http://en.wikipedia.org/wiki/Maildir)
+containing all non-spam emails.
+
+spamdir is a Maildir (see above) containing all spam email.
+
+targets are one or more files you want to 'score' or see the 
+spamicity of.  
+
+The program takes these inputs and 'scores' the targets on their
+spamicity, and gives you the probability of the msg being spam.
+The classifier uses Naive Bayes (though there may be some statistical
+issues with my approach) using Laplacian Smoothing.  In layman's terms
+I use an algo where words keep a ratio of appearances in spam vs 
+total appearances (spam/total) to find out how likely a message is
+spam if it contains the word, then combine the probabiliies of all
+words under the assumption that all words in a message occur independently
+of one another.  This differs from the Wikipedia implementation (in the 
+part where I calculate how spammy a message for each word) but it seems
+like this works as well (though probably not as well as a different 
+one).
+
+For use on getting test mail, try looking up 'getmail' to retrieve 
+your own email messages, and spam can be found from places listed in:
+http://stackoverflow.com/questions/4743996/publicly-available-spam-filter-training-set
+
+Future work:
+1.  Serialize the Bayes object so we don't have to recalculate the spamminess
+each time.
+2.  Make the algo more statistically sound (follow wikipedia?  I don't really
+understand their formula)
+3.  Use logarithms to allow use of larger datasets (because the probabilities 
+of finding some words, when combined, push the limits of the computer's 
+precision).
